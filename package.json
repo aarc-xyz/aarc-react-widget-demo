@@ -10,8 +10,9 @@
         "preview": "vite preview"
     },
     "dependencies": {
-        "@aarc-xyz/eth-connector": "latest",
-        "@aarc-xyz/fundkit-web-sdk": "latest",
+        "@aarc-xyz/eth-connector": "0.1.4",
+        "@aarc-xyz/fundkit-web-sdk": "0.1.2",
+        "@rainbow-me/rainbowkit": "^2.2.1",
         "@tanstack/react-query": "^5.28.4",
         "ethers": "^6.13.2",
         "react": "^18.3.1",

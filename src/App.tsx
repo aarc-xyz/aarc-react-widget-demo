@@ -25,10 +25,6 @@ const config: FKConfig = {
     },
     onRamp: {
       enabled: true,
-      onRampConfig: {
-        customerId: "323232323",
-        exchangeScreenTitle: "Deposit funds in your wallet",
-      },
     },
     bridgeAndSwap: {
       enabled: true,
@@ -133,166 +129,161 @@ function App() {
 
   return (
     <QueryClientProvider client={queryClient}>
-      <AarcEthWalletConnector aarcWebClient={aarcModal}>
-        <div className="App">
-          <div>
-            <div className="card">
-              <h2>Transfer Balance</h2>
-              <div className="form">
-                <div className="form-item">
-                  <label>
-                    Recipient wallet address:
-                    <input
-                      type="text"
-                      value={address}
-                      className="input p-1"
-                      style={{ width: "100%" }}
-                      onChange={(e) => {
-                        aarcModal.updateDestinationWalletAddress(
-                          e.target.value
-                        );
-                        setAddress(e.target.value);
-                      }}
-                    />
-                  </label>
-                </div>
-                <div className="form-item">
-                  <img
-                    src={DepositBanner}
-                    alt="Deposit"
-                    onClick={handleSubmit}
-                    className="clickable-image"
+      <AarcEthWalletConnector aarcWebClient={aarcModal} />
+      <div className="App">
+        <div>
+          <div className="card">
+            <h2>Transfer Balance</h2>
+            <div className="form">
+              <div className="form-item">
+                <label>
+                  Recipient wallet address:
+                  <input
+                    type="text"
+                    value={address}
+                    className="input p-1"
+                    style={{ width: "100%" }}
+                    onChange={(e) => {
+                      aarcModal.updateDestinationWalletAddress(e.target.value);
+                      setAddress(e.target.value);
+                    }}
                   />
-                </div>
-                <div className="form-item">
-                  <img
-                    src={ContractBanner}
-                    alt="Contract"
-                    onClick={handleSubmitContract}
-                    className="clickable-image"
-                  />
-                </div>
+                </label>
+              </div>
+              <div className="form-item">
+                <img
+                  src={DepositBanner}
+                  alt="Deposit"
+                  onClick={handleSubmit}
+                  className="clickable-image"
+                />
+              </div>
+              <div className="form-item">
+                <img
+                  src={ContractBanner}
+                  alt="Contract"
+                  onClick={handleSubmitContract}
+                  className="clickable-image"
+                />
               </div>
             </div>
-            {import.meta.env.VITE_RUN_MODE === "development" && (
-              <>
-                <h2>Preselect</h2>
-                <div className="buttons">
-                  <button
-                    onClick={async () => {
-                      aarcModal.updateDestinationToken(
-                        "0xaf88d065e77c8cC2239327C5EDb3A432268e5831",
-                        42161,
-                        0.01
-                      );
-                      aarcModal.openModal();
-                    }}
-                  >
-                    {"0.01 USDC (ARB)"}
-                  </button>
-                  <button
-                    onClick={async () => {
-                      aarcModal.updateDestinationToken(
-                        "0xaf88d065e77c8cC2239327C5EDb3A432268e5831",
-                        42161
-                      );
-                      aarcModal.updateRequestedAmountInUSD(0.01);
-                      aarcModal.openModal();
-                    }}
-                  >
-                    {"$0.01 USDC (ARB)"}
-                  </button>
-                  <button
-                    onClick={async () => {
-                      aarcModal.updateDestinationToken(
-                        "0xf97f4df75117a78c1a5a0dbb814af92458539fb4",
-                        42161,
-                        10
-                      );
-                      aarcModal.openModal();
-                    }}
-                  >
-                    {"10 LINK (ARB)"}
-                  </button>
-                  <button
-                    onClick={async () => {
-                      aarcModal.updateDestinationToken(
-                        "0xbc45647ea894030a4e9801ec03479739fa2485f0",
-                        8453,
-                        undefined
-                      );
-                      aarcModal.openModal();
-                    }}
-                  >
-                    {"BENJI (BASE)"}
-                  </button>
-                  <button
-                    onClick={async () => {
-                      aarcModal.updateDestinationToken(
-                        "0xbc45647ea894030a4e9801ec03479739fa2485f0",
-                        8453,
-                        undefined
-                      );
-                      aarcModal.updateRequestedAmountInUSD(2);
-                      aarcModal.openModal();
-                    }}
-                  >
-                    {"$2 BENJI (BASE)"}
-                  </button>
-                  {config?.module?.bridgeAndSwap?.connectors?.includes(
-                    SourceConnectorName.SOLANA
-                  ) && (
-                    <>
-                      <button
-                        onClick={async () => {
-                          aarcModal.updateDestinationWalletAddress(
-                            "3o2Xo9TTVwTfB4pd88zk9VeWHd416nqR8jxxeC9cxmiE"
-                          );
-                          setAddress(
-                            aarcModal.config.destination.walletAddress
-                          );
-                          aarcModal.openModal();
-                        }}
-                      >
-                        Solana address
-                      </button>
-                    </>
-                  )}
-                  <button
-                    onClick={async () => {
-                      aarcModal.updateAppearance({
-                        theme: ThemeName.DARK,
-                      });
-                      aarcModal.openModal();
-                    }}
-                  >
-                    DARK MODE
-                  </button>
-                  <button
-                    onClick={async () => {
-                      aarcModal.updateAppearance({
-                        theme: ThemeName.LIGHT,
-                      });
-                      aarcModal.openModal();
-                    }}
-                  >
-                    LIGHT MODE
-                  </button>
-                  <button
-                    onClick={async () => {
-                      setAddress(config.destination.walletAddress);
-                      aarcModal.reset();
-                      aarcModal.openModal();
-                    }}
-                  >
-                    RESET
-                  </button>
-                </div>
-              </>
-            )}
           </div>
+          {import.meta.env.VITE_RUN_MODE === "development" && (
+            <>
+              <h2>Preselect</h2>
+              <div className="buttons">
+                <button
+                  onClick={async () => {
+                    aarcModal.updateDestinationToken(
+                      "0xaf88d065e77c8cC2239327C5EDb3A432268e5831",
+                      42161,
+                      0.01
+                    );
+                    aarcModal.openModal();
+                  }}
+                >
+                  {"0.01 USDC (ARB)"}
+                </button>
+                <button
+                  onClick={async () => {
+                    aarcModal.updateDestinationToken(
+                      "0xaf88d065e77c8cC2239327C5EDb3A432268e5831",
+                      42161
+                    );
+                    aarcModal.updateRequestedAmountInUSD(0.01);
+                    aarcModal.openModal();
+                  }}
+                >
+                  {"$0.01 USDC (ARB)"}
+                </button>
+                <button
+                  onClick={async () => {
+                    aarcModal.updateDestinationToken(
+                      "0xf97f4df75117a78c1a5a0dbb814af92458539fb4",
+                      42161,
+                      10
+                    );
+                    aarcModal.openModal();
+                  }}
+                >
+                  {"10 LINK (ARB)"}
+                </button>
+                <button
+                  onClick={async () => {
+                    aarcModal.updateDestinationToken(
+                      "0xbc45647ea894030a4e9801ec03479739fa2485f0",
+                      8453,
+                      undefined
+                    );
+                    aarcModal.openModal();
+                  }}
+                >
+                  {"BENJI (BASE)"}
+                </button>
+                <button
+                  onClick={async () => {
+                    aarcModal.updateDestinationToken(
+                      "0xbc45647ea894030a4e9801ec03479739fa2485f0",
+                      8453,
+                      undefined
+                    );
+                    aarcModal.updateRequestedAmountInUSD(2);
+                    aarcModal.openModal();
+                  }}
+                >
+                  {"$2 BENJI (BASE)"}
+                </button>
+                {config?.module?.bridgeAndSwap?.connectors?.includes(
+                  SourceConnectorName.SOLANA
+                ) && (
+                  <>
+                    <button
+                      onClick={async () => {
+                        aarcModal.updateDestinationWalletAddress(
+                          "3o2Xo9TTVwTfB4pd88zk9VeWHd416nqR8jxxeC9cxmiE"
+                        );
+                        setAddress(aarcModal.config.destination.walletAddress);
+                        aarcModal.openModal();
+                      }}
+                    >
+                      Solana address
+                    </button>
+                  </>
+                )}
+                <button
+                  onClick={async () => {
+                    aarcModal.updateAppearance({
+                      theme: ThemeName.DARK,
+                    });
+                    aarcModal.openModal();
+                  }}
+                >
+                  DARK MODE
+                </button>
+                <button
+                  onClick={async () => {
+                    aarcModal.updateAppearance({
+                      theme: ThemeName.LIGHT,
+                    });
+                    aarcModal.openModal();
+                  }}
+                >
+                  LIGHT MODE
+                </button>
+                <button
+                  onClick={async () => {
+                    setAddress(config.destination.walletAddress);
+                    aarcModal.reset();
+                    aarcModal.openModal();
+                  }}
+                >
+                  RESET
+                </button>
+              </div>
+            </>
+          )}
         </div>
-      </AarcEthWalletConnector>
+      </div>
     </QueryClientProvider>
   );
 }

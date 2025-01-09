@@ -1,0 +1,84 @@
+name: Lint
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+    branches:
+      - '**'  # This matches all branch names
+  push:
+    branches: 
+      - main
+      - dev
+
+permissions:
+  contents: read
+  pull-requests: read
+
+jobs:
+  lint:
+    name: Run linters
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out Git repository
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 18
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+        
+      - name: Cache eslint results
+        uses: actions/cache@v3
+        with:
+          path: .eslintcache
+          key: ${{ runner.os }}-eslint-${{ hashFiles('**/.eslintrc.*') }}
+          restore-keys: |
+            ${{ runner.os }}-eslint-
+
+      - name: Check for ESLint config
+        id: eslint-config
+        run: |
+          if [ -f ".eslintrc.js" ] || [ -f ".eslintrc.json" ] || [ -f ".eslintrc.yaml" ] || [ -f ".eslintrc.yml" ]; then
+            echo "exists=true" >> $GITHUB_OUTPUT
+          else
+            echo "exists=false" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Run ESLint
+        if: steps.eslint-config.outputs.exists == 'true'
+        run: npm run lint
+        continue-on-error: false
+
+      - name: Check for Prettier config
+        id: prettier-config
+        run: |
+          if [ -f ".prettierrc" ] || [ -f ".prettierrc.js" ] || [ -f ".prettierrc.json" ] || [ -f ".prettierrc.yaml" ] || [ -f ".prettierrc.yml" ]; then
+            echo "exists=true" >> $GITHUB_OUTPUT
+          else
+            echo "exists=false" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Run Prettier check
+        if: steps.prettier-config.outputs.exists == 'true'
+        run: npm run format:check || npm run prettier:check
+        continue-on-error: false
+
+      - name: Check TypeScript configuration
+        id: typescript-config
+        run: |
+          if [ -f "tsconfig.json" ]; then
+            echo "exists=true" >> $GITHUB_OUTPUT
+          else
+            echo "exists=false" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Run TypeScript type check
+        if: steps.typescript-config.outputs.exists == 'true'
+        run: npm run type-check || npx tsc --noEmit

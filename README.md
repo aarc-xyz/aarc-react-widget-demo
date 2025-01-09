@@ -1,100 +1,173 @@
-# Fund Kit Widget Sample App
+# Fund Kit Widget React Sample App
 
-This sample app demonstrates how to integrate and use the Fund Kit Widget in a React project.
+<div align="center">
 
-## Features
+![Aarc Logo](https://docs.aarc.xyz/~gitbook/image?url=https%3A%2F%2F2121962569-files.gitbook.io%2F%7E%2Ffiles%2Fv0%2Fb%2Fgitbook-x-prod.appspot.com%2Fo%2Fspaces%252FfkVTcYLDkf0mcGW9zUvc%252Ficon%252FXtUcMbVRcCfcJqlZizrq%252F1.png%3Falt%3Dmedia%26token%3De011d1c3-bb05-417f-82ac-273ca8e40dd5&width=32&dpr=1&quality=100&sign=949106d8&sv=)
 
-- Easy integration with Next.js
-- Customizable widget configuration
-- Seamless wallet connection using WagmiProvider
-- State management with React Query
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![React](https://img.shields.io/badge/React-18.0+-blue)](https://reactjs.org/)
+[![TypeScript](https://img.shields.io/badge/TypeScript-5.0+-blue)](https://www.typescriptlang.org/)
 
-## Prerequisites
+A production-ready sample application demonstrating the integration of Aarc's Fund Kit Widget with React
+</div>
 
-- Node.js (v14 or later)
-- npm, yarn, pnpm, or bun
+## 📋 Prerequisites
 
-## Getting Started
+- Node.js (v16.0.0 or later)
+- Package manager (choose one):
+  - npm (v7.0.0 or later)
+  - yarn (v1.22.0 or later)
+  - pnpm (v6.0.0 or later)
+  - bun (v1.0.0 or later)
 
-1. Clone this repository:
+## 🛠 Installation
 
+1. **Clone the Repository**
    ```bash
-   git clone <PROJECT_URL>
-   cd <PROJECT_NAME>
+   git clone https://github.com/aarc-xyz/aarc-react-widget-demo.git
+   cd aarc-react-widget-demo
    ```
 
-2. Install dependencies:
-
+2. **Install Dependencies**
    ```bash
+   # Using npm
    npm install
-   # or
+
+   # Using yarn
    yarn install
-   # or
+
+   # Using pnpm
    pnpm install
-   # or
+
+   # Using bun
    bun install
    ```
 
-3. Run the development server:
-
+3. **Start Development Server**
    ```bash
-   npm run dev
-   # or
-   yarn dev
-   # or
-   pnpm dev
-   # or
-   bun dev
+   # Using npm
+   npm start
+
+   # Using yarn
+   yarn start
+
+   # Using pnpm
+   pnpm start
+
+   # Using bun
+   bun start
    ```
 
-4. Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+4. **View the App**
+   Open [http://localhost:3000](http://localhost:3000) in your browser
 
-## Aarc packages
-1. ```"@aarc-xyz/fundkit-web-sdk": "latest"```
-2. ```"@aarc-xyz/eth-connector": "latest"```
+## 📦 Required Aarc Packages
 
-## Usage
+```json
+{
+  "dependencies": {
+    "@aarc-xyz/fundkit-web-sdk": "latest",
+    "@aarc-xyz/eth-connector": "latest"
+  }
+}
+```
 
-To integrate the Fund Kit Widget into your Next.js project, follow these steps:
+## 🔧 Integration Guide
 
-1. Create a `config` object for the widget. You can learn more about the configuration options in the [AARC documentation](https://docs.aarc.xyz/developer-docs/fund-kit/fund-kit-widget/config).
+### 1. Install Dependencies
 
-2. Create a `queryClient` for the `QueryClientProvider`.
+```bash
+npm install @aarc-xyz/fundkit-web-sdk @aarc-xyz/eth-connector @tanstack/react-query
+```
 
-3. Wrap your root component with the necessary providers:
+### 2. Import Required Styles
 
-   ```tsx
-   import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-   import { AarcEthWalletConnector } from "@aarc-xyz/eth-connector";
-   import "@aarc-xyz/eth-connector/styles.css";
-   import { config } from "@/config";
-   import { AarcFundKitModal, FKConfig } from "@aarc-xyz/fundkit-web-sdk";
-   const queryClient = new QueryClient();
-   const aarcModal = new AarcFundKitModal(config);
-   function App({ children }) {
-     return (
-       <QueryClientProvider client={queryClient}>
-         <AarcEthWalletConnector aarcWebClient={aarcModal}>
-           {children}
-         </AarcEthWalletConnector>
-       </QueryClientProvider>
-     );
-   }
-   ```
+```tsx
+import "@aarc-xyz/eth-connector/styles.css";
+```
 
-4. To open the widget, use the `aarcModal` class:
-    ```tsx
-    export default function Home() {
-      return (
-        <div>
-          <button
-            onClick={() => {
-              aarcModal?.openModal();
-            }}
-          >
-            Open Fund Kit Widget
-          </button>
-        </div>
-      );
-    }
-    ```
+### 3. Configure the Widget
+
+Create a configuration file (`src/config/aarc.ts`):
+
+```tsx
+import { FKConfig } from "@aarc-xyz/fundkit-web-sdk";
+
+export const config: FKConfig = {
+  // Your configuration options
+  // See: https://docs.aarc.xyz/developer-docs/fund-kit/fund-kit-widget/config
+};
+```
+
+### 4. Set Up Providers
+
+Wrap your application with the necessary providers:
+
+```tsx
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { AarcEthWalletConnector } from "@aarc-xyz/eth-connector";
+import { AarcFundKitModal } from "@aarc-xyz/fundkit-web-sdk";
+import { config } from "./config/aarc";
+
+const queryClient = new QueryClient();
+const aarcModal = new AarcFundKitModal(config);
+
+function App({ children }) {
+  return (
+    <QueryClientProvider client={queryClient}>
+      <AarcEthWalletConnector aarcWebClient={aarcModal}>
+        {children}
+      </AarcEthWalletConnector>
+    </QueryClientProvider>
+  );
+}
+
+export default App;
+```
+
+### 5. Use the Widget
+
+Implement the widget in your components:
+
+```tsx
+function HomePage() {
+  return (
+    <div>
+      <button onClick={() => aarcModal?.openModal()}>
+        Open Fund Kit Widget
+      </button>
+    </div>
+  );
+}
+
+export default HomePage;
+```
+
+## 📚 Documentation
+
+For detailed information about the Fund Kit Widget and its capabilities, visit our comprehensive documentation:
+
+- [Getting Started Guide](https://docs.aarc.xyz/developer-docs/developers/widget)
+- [Widget Configuration](https://docs.aarc.xyz/developer-docs/fund-kit/fund-kit-widget/config)
+- [API Reference](https://docs.aarc.xyz/developer-docs/developers/api)
+- [Integration Examples](https://docs.aarc.xyz/developer-docs/developers/cookbook)
+
+## 🤝 Contributing
+
+We welcome contributions! Please read our [Contributing Guidelines](CONTRIBUTING.md) for details on how to submit pull requests, report issues, and contribute to the project.
+
+## 📄 License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+## 🙋‍♂️ Support
+
+- Join our [Discord community](https://discord.com/invite/XubvAjtpM7)
+- Report issues on [GitHub](https://github.dev/aarc-xyz/aarc-react-widget-demo/issues)
+- Read our [documentation](https://docs.aarc.xyz)
+
+---
+
+<div align="center">
+Built with ❤️ by the <a href="https://aarc.xyz/">Aarc</a> team
+</div>

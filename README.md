@@ -2,7 +2,7 @@
 
 <div align="center">
 
-![Aarc Logo](https://docs.aarc.xyz/~gitbook/image?url=https%3A%2F%2F2121962569-files.gitbook.io%2F%7E%2Ffiles%2Fv0%2Fb%2Fgitbook-x-prod.appspot.com%2Fo%2Fspaces%252FfkVTcYLDkf0mcGW9zUvc%252Ficon%252FXtUcMbVRcCfcJqlZizrq%252F1.png%3Falt%3Dmedia%26token%3De011d1c3-bb05-417f-82ac-273ca8e40dd5&width=32&dpr=1&quality=100&sign=949106d8&sv=)
+![Aarc logo](/public/aarclogo.svg)
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![React](https://img.shields.io/badge/React-18.0+-blue)](https://reactjs.org/)

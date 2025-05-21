@@ -119,10 +119,6 @@ function App() {
       contractName: "Simple Dapp Interface",
       contractGasLimit: "1000000",
       contractPayload: payload,
-      sourceTokenData: {
-        sourceTokenAmount: 0.01,
-        sourceTokenCode: "USDC",
-      },
     });
     aarcModal.openModal();
   }, [aarcModal, address]);

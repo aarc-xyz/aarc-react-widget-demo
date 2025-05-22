@@ -1,19 +1,6 @@
-import { ethers } from 'ethers';
+import { type Chain as WagmiChain } from 'wagmi/chains';
 
-export interface Chain {
-  id: number;
-  name: string;
-  nativeCurrency: {
-    name: string;
-    symbol: string;
-    decimals: number;
-  };
-  blockExplorers?: {
-    default?: {
-      url?: string;
-    };
-  };
-}
+export type Chain = WagmiChain;
 
 export interface PrivateKeyModalProps {
   isOpen: boolean;
@@ -23,9 +10,4 @@ export interface PrivateKeyModalProps {
   onConnect: () => Promise<void>;
   onDisconnect: () => Promise<void>;
   isConnected: boolean;
-}
-
-export interface PrivateKeyConnectorConfig {
-  privateKey: string;
-  provider?: ethers.JsonRpcProvider;
 } 

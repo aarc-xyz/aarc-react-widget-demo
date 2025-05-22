@@ -44,7 +44,7 @@ const styles = {
   },
   button: {
     width: '100%',
-    marginTop: '0.5rem',
+    marginTop: '1rem',
     padding: '0.75rem',
     color: 'white',
     border: 'none',
@@ -56,6 +56,11 @@ const styles = {
   },
   disconnectButton: {
     backgroundColor: '#f44336',
+  },
+  error: {
+    color: '#f44336',
+    marginTop: '0.5rem',
+    fontSize: '0.875rem',
   },
 };
 
@@ -73,45 +78,38 @@ export function PrivateKeyModal({
   return (
     <div style={styles.overlay}>
       <div style={styles.modal}>
-        <button
-          onClick={onClose}
-          style={styles.closeButton}
-          aria-label="Close modal"
-        >
+        <button style={styles.closeButton} onClick={onClose}>
           ×
         </button>
         <h2 style={styles.title}>Connect Private Key Wallet</h2>
-        <div style={{ marginBottom: '1rem' }}>
-          <label style={{ display: 'block', marginBottom: '0.5rem' }}>
-            Private Key:
-            <input
-              type="password"
-              value={privateKey}
-              onChange={(e) => onPrivateKeyChange(e.target.value)}
-              className="input p-1"
-              style={styles.input}
-              placeholder="Enter your private key (0x...)"
-            />
-          </label>
-          {!isConnected && (
-            <button 
+        
+        {!isConnected ? (
+          <>
+            <label>
+              Private Key:
+              <input
+                type="password"
+                value={privateKey}
+                onChange={(e) => onPrivateKeyChange(e.target.value)}
+                style={styles.input}
+                placeholder="Enter your private key"
+              />
+            </label>
+            <button
               onClick={onConnect}
-              className="button"
               style={{ ...styles.button, ...styles.connectButton }}
             >
               Connect
             </button>
-          )}
-          {isConnected && (
-            <button 
-              onClick={onDisconnect}
-              className="button"
-              style={{ ...styles.button, ...styles.disconnectButton }}
-            >
-              Disconnect
-            </button>
-          )}
-        </div>
+          </>
+        ) : (
+          <button
+            onClick={onDisconnect}
+            style={{ ...styles.button, ...styles.disconnectButton }}
+          >
+            Disconnect
+          </button>
+        )}
       </div>
     </div>
   );

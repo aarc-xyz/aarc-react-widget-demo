@@ -1,10 +1,12 @@
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useState } from "react";
 import { WebClientInterface } from "@aarc-xyz/fundkit-web-sdk";
 import { InitAarcWithEthWalletListener } from "@aarc-xyz/eth-connector";
-import { PrivateKeyConnector } from './connectors/PrivateKeyConnector';
-import { EthersBlockchainSigner } from './signers/EthersBlockchainSigner';
+import { useAccount, useConnect, useDisconnect, useSwitchChain, useWalletClient } from 'wagmi';
 import { PrivateKeyModal } from './components/PrivateKeyModal';
-import { Chain } from './types';
+import { config } from './config';
+import { WagmiProvider } from 'wagmi';
+import { WagmiWalletAdapter } from './adapters/WagmiWalletAdapter';
+import { setPrivateKey } from './connectors/PrivateKeyConnector';
 
 const styles = {
   connectButton: {
@@ -23,78 +25,47 @@ const styles = {
   },
 };
 
-export function WagmiAppConnector({ aarcClient }: { aarcClient: WebClientInterface }) {
-  const [privateKey, setPrivateKey] = useState(import.meta.env.VITE_PRIVATE_KEY || '');
-  const [privateKeyConnector, setPrivateKeyConnector] = useState(() => new PrivateKeyConnector({ privateKey }));
-  const [isConnected, setIsConnected] = useState(false);
+function WagmiConnectorContent({ aarcClient }: { aarcClient: WebClientInterface }) {
   const [isModalOpen, setIsModalOpen] = useState(false);
-
-  const handlePrivateKeyChange = useCallback((newPrivateKey: string) => {
-    setPrivateKey(newPrivateKey);
-    setPrivateKeyConnector(new PrivateKeyConnector({ privateKey: newPrivateKey }));
-    if (isConnected) {
-      setIsConnected(false);
-    }
-  }, [isConnected]);
+  const [privateKey, setPrivateKeyState] = useState('');
+  const { address, isConnected } = useAccount();
+  const { connect } = useConnect();
+  const { disconnect } = useDisconnect();
+  const { switchChain } = useSwitchChain();
+  const { data: walletClient } = useWalletClient();
 
   const handleConnect = useCallback(async () => {
     try {
-      if (!privateKey) {
-        throw new Error('Please enter a private key');
-      }
-      const newConnector = new PrivateKeyConnector({ privateKey });
-      setPrivateKeyConnector(newConnector);
-      await newConnector.connect();
-      setIsConnected(true);
+      setPrivateKey(privateKey);
+      await connect({ connector: config.connectors[0] });
+      setPrivateKeyState(''); // Clear input after connect
     } catch (error) {
       console.error("Failed to connect:", error);
-      setIsConnected(false);
       throw error;
     }
-  }, [privateKey]);
+  }, [connect, privateKey]);
 
   const handleDisconnect = useCallback(async () => {
     try {
-      await privateKeyConnector.disconnect();
-      setIsConnected(false);
-      setPrivateKeyConnector(new PrivateKeyConnector({ privateKey }));
+      setPrivateKey(null);
+      await disconnect();
     } catch (error) {
       console.error("Failed to disconnect:", error);
       throw error;
     }
-  }, [privateKeyConnector, privateKey]);
+  }, [disconnect]);
 
   const handleSwitchChain = useCallback(async ({ chainId }: { chainId: number }) => {
     try {
-      await privateKeyConnector.switchChain(chainId);
+      await switchChain({ chainId });
     } catch (error) {
       console.error("Failed to switch chain:", error);
       throw error;
     }
-  }, [privateKeyConnector]);
+  }, [switchChain]);
 
-  const walletClient = useMemo(() => {
-    if (!privateKeyConnector.signer) return undefined;
-    return new EthersBlockchainSigner(privateKeyConnector.signer);
-  }, [privateKeyConnector.signer]);
-
-  const chains = useMemo<Chain[]>(
-    () => PrivateKeyConnector.getSupportedChains().map((network) => ({
-      id: network.id,
-      name: network.name,
-      nativeCurrency: {
-        name: network.nativeCurrency.name,
-        symbol: network.nativeCurrency.symbol,
-        decimals: network.nativeCurrency.decimals,
-      },
-      blockExplorers: {
-        default: {
-          url: network.blockExplorers?.default?.url,
-        },
-      },
-    })),
-    []
-  );
+  // Create AARC wallet client adapter when wagmi wallet client is available
+  const aarcWalletClient = walletClient ? new WagmiWalletAdapter(walletClient) : undefined;
 
   return (
     <>
@@ -113,7 +84,7 @@ export function WagmiAppConnector({ aarcClient }: { aarcClient: WebClientInterfa
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
         privateKey={privateKey}
-        onPrivateKeyChange={handlePrivateKeyChange}
+        onPrivateKeyChange={setPrivateKeyState}
         onConnect={async () => {
           await handleConnect();
           setIsModalOpen(false);
@@ -128,17 +99,25 @@ export function WagmiAppConnector({ aarcClient }: { aarcClient: WebClientInterfa
       <InitAarcWithEthWalletListener
         client={aarcClient}
         debugLog={true}
-        chains={chains}
-        chainId={privateKeyConnector.signer ? Number(privateKeyConnector.getChainId()) : undefined}
-        address={privateKeyConnector.signer?.address}
+        chains={[...config.chains]}
+        chainId={address ? Number(config.chains[0].id) : undefined}
+        address={address}
         disconnectAsync={handleDisconnect}
         onClickConnect={async () => {
           setIsModalOpen(true);
           return Promise.resolve();
         }}
-        walletClient={walletClient}
+        walletClient={aarcWalletClient}
         switchChain={handleSwitchChain}
       />
     </>
+  );
+}
+
+export function WagmiAppConnector({ aarcClient }: { aarcClient: WebClientInterface }) {
+  return (
+    <WagmiProvider config={config}>
+        <WagmiConnectorContent aarcClient={aarcClient} />
+    </WagmiProvider>
   );
 } 

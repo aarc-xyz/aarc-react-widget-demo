@@ -10,10 +10,11 @@ import {
 } from "@aarc-xyz/fundkit-web-sdk";
 import DepositBanner from "./assets/deposit-banner.svg";
 import ContractBanner from "./assets/contract-banner.svg";
-import { AarcEthWalletConnector } from "@aarc-xyz/eth-connector";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { ethers } from "ethers";
+import { ThirdwebAppConnector } from "./ThirdWeb/ThirdwebConnector";
 import "@aarc-xyz/eth-connector/styles.css"; // this is important to include for wallet connect modal styles
+import { AarcEthWalletConnector } from "@aarc-xyz/eth-connector";
 
 const queryClient = new QueryClient();
 
@@ -70,10 +71,16 @@ const config: FKConfig = {
   origin: window.location.origin,
 };
 
+// Add this enum after the imports
+enum WalletConnectorType {
+  ETH = "ETH",
+  THIRDWEB = "THIRDWEB",
+}
+
 function App() {
   const aarcModalRef = useRef(new AarcFundKitModal(config));
-
   const [address, setAddress] = useState(config.destination.walletAddress);
+  const [selectedConnector, setSelectedConnector] = useState<WalletConnectorType>(WalletConnectorType.ETH);
   const aarcModal = aarcModalRef.current;
 
   const handleSubmit = useCallback(() => {
@@ -119,22 +126,33 @@ function App() {
       contractName: "Simple Dapp Interface",
       contractGasLimit: "1000000",
       contractPayload: payload,
-      sourceTokenData: {
-        sourceTokenAmount: 0.01,
-        sourceTokenCode: "USDC",
-      },
     });
     aarcModal.openModal();
   }, [aarcModal, address]);
 
   return (
     <QueryClientProvider client={queryClient}>
-      <AarcEthWalletConnector aarcWebClient={aarcModal} />
+      {selectedConnector === WalletConnectorType.ETH && <AarcEthWalletConnector aarcWebClient={aarcModal} />}
+      {selectedConnector === WalletConnectorType.THIRDWEB && <ThirdwebAppConnector aarcClient={aarcModal} />}
       <div className="App">
         <div>
           <div className="card">
             <h2>Transfer Balance</h2>
             <div className="form">
+              <div className="form-item">
+                <label>
+                  Wallet Connector:
+                  <select
+                    value={selectedConnector}
+                    onChange={(e) => setSelectedConnector(e.target.value as WalletConnectorType)}
+                    className="input p-1"
+                    style={{ width: "100%", marginBottom: "1rem" }}
+                  >
+                    <option value={WalletConnectorType.ETH}>Ethereum Wallet</option>
+                    <option value={WalletConnectorType.THIRDWEB}>Thirdweb Wallet</option>
+                  </select>
+                </label>
+              </div>
               <div className="form-item">
                 <label>
                   Recipient wallet address:

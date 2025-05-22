@@ -24,10 +24,12 @@ import { InitAarcWithEthWalletListener } from "@aarc-xyz/eth-connector";
 import { ThirdwebEthereumSigner } from "./ThirdwebEthereumSigner";
 import { createThirdwebClient } from "thirdweb";
 
-// Create a client instance
-const thirdwebClient = createThirdwebClient({
-  clientId: import.meta.env.VITE_THIRDWEB_CLIENT_ID,
-});
+// Create a client instance only if client ID is available
+const thirdwebClient = import.meta.env.VITE_THIRDWEB_CLIENT_ID 
+  ? createThirdwebClient({
+      clientId: import.meta.env.VITE_THIRDWEB_CLIENT_ID,
+    })
+  : null;
 
 // Define supported chains
 const SUPPORTED_CHAINS = [
@@ -59,6 +61,16 @@ interface Chain {
 
 
 export function ThirdwebAppConnector({ aarcClient }: { aarcClient: WebClientInterface }) {
+  if (!thirdwebClient) {
+    return (
+      <div className="p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
+        <p className="text-yellow-800">
+          Thirdweb integration is not configured. Please set VITE_THIRDWEB_CLIENT_ID in your environment variables to use Thirdweb wallet.
+        </p>
+      </div>
+    );
+  }
+
   return (
     <ThirdwebProvider>
       <ThirdwebWalletWrapper aarcClient={aarcClient} debugLog={true} />
@@ -91,7 +103,7 @@ export function ThirdwebWalletWrapper({
         },
         blockExplorers: {
           default: {
-            url: undefined, // Thirdweb chains don't expose explorer URLs directly
+            url: undefined,
           },
         },
       })),
@@ -100,6 +112,7 @@ export function ThirdwebWalletWrapper({
 
   const switchChain = useCallback(
     async ({ chainId }: { chainId: number }): Promise<void> => {
+      if (!thirdwebClient) return;
       try {
         if (activeWallet?.switchChain) {
           const chain = SUPPORTED_CHAINS.find((c) => Number(c.id) === chainId);
@@ -116,6 +129,7 @@ export function ThirdwebWalletWrapper({
   );
 
   const combinedDisconnect = useCallback(async () => {
+    if (!thirdwebClient) return;
     try {
       if (activeWallet) {
         await disconnect(activeWallet);
@@ -127,18 +141,24 @@ export function ThirdwebWalletWrapper({
   }, [disconnect, activeWallet]);
 
   const onClickConnect = useCallback(async () => {
+    if (!thirdwebClient) return;
     await connect({ client: thirdwebClient });
     console.log("Connection handled by Thirdweb ConnectWallet");
   }, [connect]);
 
   // Get the current wallet client
   const walletClient = useMemo(() => {
+    if (!thirdwebClient) return undefined;
     const account = activeWallet?.getAccount();
     if (account) {
       return new ThirdwebEthereumSigner(account);
     }
     return undefined;
   }, [activeWallet]);
+
+  if (!thirdwebClient) {
+    return null;
+  }
 
   return (
     <InitAarcWithEthWalletListener
